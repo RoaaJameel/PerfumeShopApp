@@ -35,8 +35,9 @@ public class OrderDetailsAdapter extends RecyclerView.Adapter<OrderDetailsAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Order order = orderList.get(position);
 
+        // لنفترض أن كل طلب يحتوي على منتج واحد فقط
         if (order.getItems() != null && !order.getItems().isEmpty()) {
-            PerfumeItem item = order.getItems().get(0);
+            PerfumeItem item = order.getItems().get(0); // جلب المنتج الأول فقط
 
             holder.productNameTextView.setText(item.getName());
             holder.productBrandTextView.setText(item.getBrand());
