@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- الخلفية (لون التدرج) -->
+    <solid android:color="@color/gradient_start" />
+    <!-- الزوايا المدورة -->
+    <corners android:radius="16dp" /> <!-- يمكنك تعديل قيمة الـ 16dp إلى القيمة التي تريدها -->
+</shape>
