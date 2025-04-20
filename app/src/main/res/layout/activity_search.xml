@@ -10,13 +10,22 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <Button
+            android:id="@+id/checkCartButton"
+            android:layout_width="151dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#8E24AA"
+            android:text="Check Cart"
+            android:textColor="#FFF"
+            android:textSize="18sp" />
+
         <ImageView
             android:id="@+id/logoImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
             android:src="@drawable/logo" />
-
 
         <TextView
             android:layout_width="wrap_content"
@@ -33,14 +42,11 @@
             android:layout_height="wrap_content"
             android:hint="Search for perfumes" />
 
-
-
         <Spinner
             android:id="@+id/perfumeTypeSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp" />
-
 
         <RadioGroup
             android:layout_width="match_parent"
@@ -62,7 +68,6 @@
                 android:text="Female"
                 android:textSize="16sp" />
         </RadioGroup>
-
 
         <CheckBox
             android:id="@+id/checkBoxLongLasting"

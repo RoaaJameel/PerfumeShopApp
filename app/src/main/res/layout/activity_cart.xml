@@ -6,9 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".CartActivity">
 
-    <!-- Shopping Cart Title -->
 
-    <!-- RecyclerView for perfumes -->
 
     <TextView
         android:id="@+id/cartTitle"
@@ -32,7 +30,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cartTitle" />
 
-    <!-- First row: Clear Cart Button -->
     <LinearLayout
         android:id="@+id/buttonsRow"
         android:layout_width="0dp"
@@ -54,7 +51,6 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- Second row: Total & Check Out -->
     <LinearLayout
         android:id="@+id/cartBottomLayout"
         android:layout_width="0dp"
@@ -66,7 +62,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Total Price -->
         <TextView
             android:id="@+id/totalPriceText"
             android:layout_width="0dp"
@@ -76,7 +71,6 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Check Out Button -->
         <Button
             android:id="@+id/checkoutButton"
             android:layout_width="wrap_content"

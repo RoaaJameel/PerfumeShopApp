@@ -1,5 +1,6 @@
 package com.example.perfumeshopapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,6 +11,7 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +30,7 @@ public class SearchActivity extends AppCompatActivity {
     private Switch switchPriceSort;
     private Button searchButton;
     private RecyclerView perfumeRecyclerView;
+    private Button checkCartButton;
 
     private PerfumeAdapter perfumeAdapter;
     private List<PerfumeItem> originalList;
@@ -38,7 +41,6 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        // ربط عناصر الواجهة
         searchEditText = findViewById(R.id.searchEditText);
         perfumeTypeSpinner = findViewById(R.id.perfumeTypeSpinner);
         radioMale = findViewById(R.id.radioMale);
@@ -48,6 +50,7 @@ public class SearchActivity extends AppCompatActivity {
         switchPriceSort = findViewById(R.id.switchPriceSort);
         searchButton = findViewById(R.id.searchButton);
         perfumeRecyclerView = findViewById(R.id.perfumeRecyclerView);
+        checkCartButton = findViewById(R.id.checkCartButton); // تهيئة الزر
 
         // Spinner إعداد
         String[] perfumeTypes = {"All Types", "Eau de Parfum", "Eau de Toilette", "Eau de Cologne"};
@@ -66,6 +69,10 @@ public class SearchActivity extends AppCompatActivity {
         // RecyclerView إعداد
         perfumeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         originalList = MainActivity.getPerfumeList();
+        if (originalList == null) {
+            originalList = new ArrayList<>();
+            Toast.makeText(this, "No perfumes found!", Toast.LENGTH_SHORT).show();
+        }
         filteredList = new ArrayList<>();
         perfumeAdapter = new PerfumeAdapter(this, filteredList);
         perfumeRecyclerView.setAdapter(perfumeAdapter);
@@ -84,6 +91,15 @@ public class SearchActivity extends AppCompatActivity {
                 filterPerfumes();
             }
         });
+
+        // الانتقال الى عربة التسوق
+        checkCartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SearchActivity.this, CartActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void filterPerfumes() {
@@ -95,16 +111,38 @@ public class SearchActivity extends AppCompatActivity {
         boolean isLongLasting = checkBoxLongLasting.isChecked();
         boolean isStrong = checkBoxStrong.isChecked();
 
-        for (PerfumeItem item : originalList) {
-            boolean shouldAdd = true;
+        if (originalList != null) {
+            for (PerfumeItem item : originalList) {
+                boolean matches = true;
 
-            if (!nameQuery.isEmpty() && !item.getName().toLowerCase().contains(nameQuery)) shouldAdd = false;
-            if (!selectedType.equals("All Types") && !item.getType().equals(selectedType)) shouldAdd = false;
-            if (!gender.isEmpty() && !item.getGender().equalsIgnoreCase(gender)) shouldAdd = false;
-            if (isLongLasting && !item.isLongLasting()) shouldAdd = false;
-            if (isStrong && !item.isStrongScent()) shouldAdd = false;
+                // فلترة حسب النص إذا المستخدم كتب
+                if (!nameQuery.isEmpty() && !item.getName().toLowerCase().contains(nameQuery)) {
+                    matches = false;
+                }
 
-            if (shouldAdd) newFilteredList.add(item);
+                // فلترة حسب النوع إذا المستخدم اختار نوع غير "All Types"
+                if (!selectedType.equals("All Types") && !item.getType().equalsIgnoreCase(selectedType)) {
+                    matches = false;
+                }
+
+                // فلترة حسب الجنس إذا اختار
+                if (!gender.isEmpty() && !item.getGender().equalsIgnoreCase(gender)) {
+                    matches = false;
+                }
+
+                // فلترة حسب خاصية العطر لو مستخدم فعّلها
+                if (isLongLasting && !item.isLongLasting()) {
+                    matches = false;
+                }
+
+                if (isStrong && !item.isStrongScent()) {
+                    matches = false;
+                }
+
+                if (matches) {
+                    newFilteredList.add(item);
+                }
+            }
         }
 
         if (switchPriceSort.isChecked()) {
@@ -113,6 +151,9 @@ public class SearchActivity extends AppCompatActivity {
 
         filteredList.clear();
         filteredList.addAll(newFilteredList);
-        perfumeAdapter.notifyDataSetChanged();
+        if (perfumeAdapter != null) {
+            perfumeAdapter.notifyDataSetChanged();
+        }
     }
+
 }

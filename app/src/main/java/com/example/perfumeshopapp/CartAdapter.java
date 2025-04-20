@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,10 +23,18 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     private Context context;
     private List<PerfumeItem> cartList;
+    private Runnable onCartUpdated; // لتحديث السعر الكلي في Activity
+    private OnItemRemoveListener removeListener;
 
-    public CartAdapter(Context context, List<PerfumeItem> cartList) {
+    public interface OnItemRemoveListener {
+        void onItemRemoveRequested(int position);
+    }
+
+    public CartAdapter(Context context, List<PerfumeItem> cartList, Runnable onCartUpdated, OnItemRemoveListener removeListener) {
         this.context = context;
         this.cartList = cartList;
+        this.onCartUpdated = onCartUpdated;
+        this.removeListener = removeListener;
     }
 
     @NonNull
@@ -49,6 +58,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 item.setQuantity(item.getQuantity() + 1);
                 updateCartData();
                 notifyItemChanged(position);
+                onCartUpdated.run();
+            } else {
+                Toast.makeText(context, "Reached maximum stock available!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -57,12 +69,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 item.setQuantity(item.getQuantity() - 1);
                 updateCartData();
                 notifyItemChanged(position);
+                onCartUpdated.run();
+            } else {
+                if (removeListener != null) {
+                    removeListener.onItemRemoveRequested(position);
+                }
             }
         });
-
     }
 
-        @Override
+    @Override
     public int getItemCount() {
         return cartList.size();
     }
@@ -102,7 +118,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 jsonObject.put("type", item.getType());
                 jsonObject.put("isLongLasting", item.isLongLasting());
                 jsonObject.put("isStrongScent", item.isStrongScent());
-                jsonObject.put("quantity", item.getInStock());
             } catch (JSONException e) {
                 e.printStackTrace();
             }

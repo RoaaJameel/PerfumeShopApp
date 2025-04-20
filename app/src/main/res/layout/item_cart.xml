@@ -14,7 +14,6 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
-        <!-- Perfume Image -->
         <ImageView
             android:id="@+id/cartPerfumeImage"
             android:layout_width="120dp"
@@ -23,7 +22,6 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_foreground" />
 
-        <!-- Perfume Details -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"

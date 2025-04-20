@@ -2,13 +2,13 @@ package com.example.perfumeshopapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.Toast;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +29,12 @@ public class PerfumeAdapter extends RecyclerView.Adapter<PerfumeAdapter.PerfumeV
         this.perfumeList = perfumeList;
     }
 
+    public void setPerfumeList(List<PerfumeItem> newList) {
+        this.perfumeList.clear();
+        this.perfumeList.addAll(newList);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public PerfumeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -47,60 +53,65 @@ public class PerfumeAdapter extends RecyclerView.Adapter<PerfumeAdapter.PerfumeV
         holder.stockTextView.setText("In stock: " + item.getInStock());
 
         holder.addToCartButton.setOnClickListener(v -> {
-            int selectedQuantity = 1;
-
-            // الحصول على SharedPreferences
-            SharedPreferences sharedPreferences = context.getSharedPreferences("PerfumeShop", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            String cartJson = sharedPreferences.getString("cart", "[]");
-
-            JSONArray cartArray;
-            try {
-                cartArray = new JSONArray(cartJson);
-            } catch (JSONException e) {
-                cartArray = new JSONArray();
-            }
-
-            boolean found = false;
-
-            // البحث عن العطر في السلة
-            for (int i = 0; i < cartArray.length(); i++) {
-                try {
-                    JSONObject obj = cartArray.getJSONObject(i);
-                    if (obj.getString("name").equals(item.getName())) {
-                        // تحديث الكمية إذا كان العطر موجودًا
-                        int currentQty = obj.getInt("quantity");
-                        obj.put("quantity", currentQty + selectedQuantity);
-                        found = true;
-                        break;
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // إذا كان العطر غير موجود، أضفه إلى السلة
-            if (!found) {
-                JSONObject perfumeObject = new JSONObject();
-                try {
-                    perfumeObject.put("name", item.getName());
-                    perfumeObject.put("brand", item.getBrand());
-                    perfumeObject.put("price", item.getPrice());
-                    perfumeObject.put("imageResId", item.getImageResId());
-                    perfumeObject.put("quantity", selectedQuantity);
-                    cartArray.put(perfumeObject);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // حفظ التعديلات في SharedPreferences
-            editor.putString("cart", cartArray.toString());
-            editor.apply();
-
-            // إعلام المستخدم أن العطر تم إضافته
+            addToCart(item, 1);
             Toast.makeText(context, item.getName() + " added to cart!", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void addToCart(PerfumeItem item, int quantityToAdd) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("PerfumeShop", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String cartJson = sharedPreferences.getString("cart", "[]");
+
+        JSONArray cartArray;
+        try {
+            cartArray = new JSONArray(cartJson);
+        } catch (JSONException e) {
+            cartArray = new JSONArray();
+        }
+
+        boolean found = false;
+
+        for (int i = 0; i < cartArray.length(); i++) {
+            try {
+                JSONObject obj = cartArray.getJSONObject(i);
+                if (obj.getString("name").equals(item.getName())) {
+                    int currentQty = obj.getInt("quantity");
+                    int newQty = currentQty + quantityToAdd;
+                    if (newQty > item.getInStock()) {
+                        newQty = item.getInStock();
+                        Toast.makeText(context, "Reached maximum stock available!", Toast.LENGTH_SHORT).show();
+                    }
+                    obj.put("quantity", newQty);
+                    found = true;
+                    break;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!found) {
+            JSONObject perfumeObject = new JSONObject();
+            try {
+                perfumeObject.put("name", item.getName());
+                perfumeObject.put("brand", item.getBrand());
+                perfumeObject.put("price", item.getPrice());
+                perfumeObject.put("imageResId", item.getImageResId());
+                perfumeObject.put("quantity", Math.min(quantityToAdd, item.getInStock()));
+                perfumeObject.put("inStock", item.getInStock());
+                perfumeObject.put("gender", item.getGender());
+                perfumeObject.put("type", item.getType());
+                perfumeObject.put("isLongLasting", item.isLongLasting());
+                perfumeObject.put("isStrongScent", item.isStrongScent());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            cartArray.put(perfumeObject);
+        }
+
+        editor.putString("cart", cartArray.toString());
+        editor.apply();
     }
 
     @Override
