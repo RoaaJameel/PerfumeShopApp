@@ -155,5 +155,4 @@ public class SearchActivity extends AppCompatActivity {
             perfumeAdapter.notifyDataSetChanged();
         }
     }
-
 }
